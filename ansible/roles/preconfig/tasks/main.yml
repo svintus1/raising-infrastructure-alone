@@ -1,0 +1,86 @@
+- name: Базовая настройка для серверов production и staging
+  block:
+    - name: Добавление репозитория Universe
+      ansible.builtin.apt_repository:
+        repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
+        state: present
+        
+    - name: Обновление репозиториев и пакетов
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: "dist"
+
+    - name: Установка необходимых пакетов
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - lsb-release
+          - ca-certificates
+          - curl
+          - tar
+          - jq
+          - git
+          - gnupg
+          - vim
+          - htop
+        state: present
+
+    - name: Загрузка GPG-ключа Docker
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+    
+    - name: Настройка прав для GPG-ключа Docker
+      ansible.builtin.file:
+        path: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Добавление репозитория Docker
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] 
+          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        filename: docker
+        state: present
+        update_cache: yes
+
+    - name: Установка Docker и его компонентов
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+    
+    - name: Перезапуск сервиса Docker
+      ansible.builtin.service:
+        name: docker
+        state: restarted
+        enabled: yes
+
+    - name: Добавление пользователя в группу Docker
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Запрет подключения по ssh по паролю
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+
+    - name: Запрет подключения по ssh для root
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: Перезагрузка сервера
+      ansible.builtin.reboot:
+
+  become: yes

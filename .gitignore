@@ -1,2 +1,4 @@
+.vscode
 ansible/host_vars/
-ansible/*.ini
+ansible/inventory/
+vars

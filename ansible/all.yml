@@ -1,0 +1,12 @@
+---
+- name: Конфигурация серверов
+  hosts: servers
+  roles:
+    - role: preconfig
+      tags: preconfig
+
+    - role: users-init
+      tags: users-init
+
+    - role: actions-runner
+      tags: actions-runner
