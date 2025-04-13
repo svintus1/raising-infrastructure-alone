@@ -27,3 +27,5 @@
         name: chrony
         enabled: yes
         state: restarted
+
+  become: yes
