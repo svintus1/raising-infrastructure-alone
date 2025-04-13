@@ -8,5 +8,11 @@
     - role: users-init
       tags: users-init
 
+    - role: service-creator
+      tags: service-creator
+
+    - role: service-connector
+      tags: service-connector
+
     - role: actions-runner
       tags: actions-runner

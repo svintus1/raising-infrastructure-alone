@@ -1,5 +1,14 @@
 - name: Базовая настройка для серверов production и staging
   block:
+    - name: Настройка имени хоста
+      ansible.builtin.hostname:
+        name: "{{ hostname }}"
+
+    - name: Настройка часового пояса
+      community.general.timezone:
+        name: "Europe/Moscow"
+        hwclock: "UTC"
+        
     - name: Добавление репозитория Universe
       ansible.builtin.apt_repository:
         repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
@@ -23,6 +32,7 @@
           - gnupg
           - vim
           - htop
+          - chrony
         state: present
 
     - name: Загрузка GPG-ключа Docker
@@ -80,7 +90,24 @@
         line: 'PermitRootLogin no'
         state: present
 
+    - name: Добавление публичных ключей для подключения по ssh 
+      ansible.posix.authorized_key:
+        user: "{{ admin_name }}"
+        key: "{{ lookup('file', admin_ssh_pubkey_path) }}"
+        state: present
+
     - name: Перезагрузка сервера
       ansible.builtin.reboot:
+
+    - name: Настройка пользователя администратора
+      ansible.builtin.user:
+        name: "{{ admin_name }}"
+        password: "{{ admin_password | password_hash('sha512') }}"
+        groups:
+          - docker
+          - sudo
+          - adm
+        append: yes
+        state: present
 
   become: yes

@@ -1,0 +1,29 @@
+- name: Настройка NTP сервера
+  block:
+    - name: Удаляем все записи с адресами NTP серверов
+      ansible.builtin.lineinfile:
+        path: /etc/chrony/chrony.conf
+        regexp: '^\s*(server|pool)\s'
+        state: absent
+
+    - name: Добавляем записи с нужными адресами
+      ansible.builtin.lineinfile:
+        path: /etc/chrony/chrony.conf
+        lines: "{{ ntp_servers }}"
+        state: present
+        create: yes
+        insertafter: EOF
+
+    - name: Разрешаем IP адреса клиентов
+      ansible.builtin.lineinfile:
+        path: /etc/chrony/chrony.conf
+        lines: "{{ client_networks }}"
+        state: present
+        create: yes
+        insertafter: EOF
+ 
+    - name: Устанавливаем запуск сервиса при включении
+      ansible.builtin.service:
+        name: chrony
+        enabled: yes
+        state: restarted
