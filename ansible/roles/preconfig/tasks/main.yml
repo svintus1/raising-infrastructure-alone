@@ -92,7 +92,7 @@
 
     - name: Добавление публичных ключей для подключения по ssh 
       ansible.posix.authorized_key:
-        user: "{{ admin_name }}"
+        user: "{{ ansible_user }}"
         key: "{{ lookup('file', admin_ssh_pubkey_path) }}"
         state: present
 
@@ -101,7 +101,7 @@
 
     - name: Настройка пользователя администратора
       ansible.builtin.user:
-        name: "{{ admin_name }}"
+        name: "{{ ansible_user }}"
         password: "{{ admin_password | password_hash('sha512') }}"
         groups:
           - docker

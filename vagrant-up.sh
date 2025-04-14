@@ -64,8 +64,6 @@ Vagrant.configure("2") do |config|
         # Общие настройки SSH (для пользователя vagrant)
         config.ssh.insert_key = true  # Генерировать новый ключ
 
-        config.vm.boot_timeout = 600
-
         config.vm.define "vm#{i}" do |vm|
             vm.vm.hostname = "server#{i}"
             vm.ssh.host = "localhost"
