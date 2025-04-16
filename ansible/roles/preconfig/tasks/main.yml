@@ -1,4 +1,5 @@
 - name: Базовая настройка для серверов production и staging
+  become: true
   block:
     - name: Настройка имени хоста
       ansible.builtin.hostname:
@@ -8,15 +9,15 @@
       community.general.timezone:
         name: "Europe/Moscow"
         hwclock: "UTC"
-        
+
     - name: Добавление репозитория Universe
       ansible.builtin.apt_repository:
         repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
         state: present
-        
+
     - name: Обновление репозиториев и пакетов
       ansible.builtin.apt:
-        update_cache: yes
+        update_cache: true
         upgrade: "dist"
 
     - name: Установка необходимых пакетов
@@ -39,20 +40,16 @@
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: /etc/apt/keyrings/docker.asc
-    
-    - name: Настройка прав для GPG-ключа Docker
-      ansible.builtin.file:
-        path: /etc/apt/keyrings/docker.asc
         mode: "0644"
 
     - name: Добавление репозитория Docker
       ansible.builtin.apt_repository:
         repo: >
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] 
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc]
           https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         filename: docker
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Установка Docker и его компонентов
       ansible.builtin.apt:
@@ -63,18 +60,18 @@
           - docker-buildx-plugin
           - docker-compose-plugin
         state: present
-    
+
     - name: Перезапуск сервиса Docker
       ansible.builtin.service:
         name: docker
         state: restarted
-        enabled: yes
+        enabled: true
 
     - name: Добавление пользователя в группу Docker
       ansible.builtin.user:
         name: "{{ ansible_user }}"
         groups: docker
-        append: yes
+        append: true
 
     - name: Запрет подключения по ssh по паролю
       ansible.builtin.lineinfile:
@@ -90,7 +87,7 @@
         line: 'PermitRootLogin no'
         state: present
 
-    - name: Добавление публичных ключей для подключения по ssh 
+    - name: Добавление публичных ключей для подключения по ssh
       ansible.posix.authorized_key:
         user: "{{ ansible_user }}"
         key: "{{ lookup('file', admin_ssh_pubkey_path) }}"
@@ -107,7 +104,5 @@
           - docker
           - sudo
           - adm
-        append: yes
+        append: true
         state: present
-
-  become: yes

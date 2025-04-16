@@ -1,4 +1,5 @@
 - name: Добавление NTP сервера
+  become: true
   block:
     - name: Удаляем все записи с адресами NTP серверов
       ansible.builtin.lineinfile:
@@ -11,13 +12,12 @@
         path: /etc/chrony/chrony.conf
         line: "server {{ ntp_server }} iburst"
         state: present
-        create: yes
+        create: true
         insertafter: EOF
- 
+        mode: "0740"
+
     - name: Устанавливаем запуск сервиса при включении
       ansible.builtin.service:
         name: chrony
-        enabled: yes
+        enabled: true
         state: restarted
-
-  become: yes

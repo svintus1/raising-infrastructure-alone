@@ -1,30 +1,31 @@
 - name: Создание директории для Actions Runner
-  file:
+  ansible.builtin.file:
     path: "{{ runner_dir }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0755'
-  become: yes
+  become: true
 
 - name: Скачивание GitHub Actions Runner
-  get_url:
+  ansible.builtin.get_url:
     url: https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz
     dest: "{{ runner_dir }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
     mode: '0644'
-    force: yes
+    force: true
 
 - name: Извлечение Actions Runner
   ansible.builtin.unarchive:
     src: "{{ runner_dir }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
     dest: "{{ runner_dir }}"
-    remote_src: yes
+    remote_src: true
 
-- name: Запуск config.sh с вводом парметров 
+- name: Запуск config.sh с вводом парметров
   ansible.builtin.command: |
     ./config.sh --url "{{ github_repo_url }}" --token "{{ runner_token }}" --labels "{{ runner_label }}" --unattended
   args:
     chdir: "{{ runner_dir }}"
+  changed_when: false
 
 - name: Создать systemd-сервис
   ansible.builtin.copy:
@@ -35,7 +36,7 @@
       After=network.target
 
       [Service]
-      WorkingDirectory={{ runner_dir }}  
+      WorkingDirectory={{ runner_dir }}
       ExecStart=/bin/bash ./run.sh
       Restart=on-failure
       User={{ ansible_user }}
@@ -43,16 +44,16 @@
       [Install]
       WantedBy=multi-user.target
     mode: '0644'
-  become: yes
+  become: true
 
 - name: Перезапуск systemd
   ansible.builtin.systemd:
-    daemon_reload: yes
-  become: yes
+    daemon_reload: true
+  become: true
 
 - name: Активация сервиса
   ansible.builtin.systemd:
     name: actions-runner
-    enabled: yes
+    enabled: true
     state: started
-  become: yes
+  become: true

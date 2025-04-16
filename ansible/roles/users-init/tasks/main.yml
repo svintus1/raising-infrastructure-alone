@@ -1,5 +1,6 @@
 ---
 - name: Создание новых пользователей и настройка доступа по ssh
+  become: true
   block:
     - name: Проверка, существует ли группа developers
       ansible.builtin.group:
@@ -12,19 +13,17 @@
         password: "{{ item.password | password_hash('sha512') }}"
         shell: /bin/bash
         home: "/home/{{ item.name }}"
-        create_home: yes
+        create_home: true
         groups:
           - docker
           - developers
-        append: yes
+        append: true
         state: present
       loop: "{{ users }}"
 
-    - name: Добавление публичных ключей для подключения по ssh 
+    - name: Добавление публичных ключей для подключения по ssh
       ansible.posix.authorized_key:
         user: "{{ item.name }}"
         key: "{{ item.ssh_pubkey }}"
         state: present
       loop: "{{ users }}"
-  
-  become: yes

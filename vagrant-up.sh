@@ -100,7 +100,7 @@ Vagrant.configure("2") do |config|
             sudo useradd -m -s /bin/bash $username
             echo "$username:$password" | sudo chpasswd
             sudo usermod -aG sudo $username
-     
+
             # Удаляем пароль для пользователя vagrant (оставляем только ключ)
             sudo passwd -d vagrant
         SHELL
