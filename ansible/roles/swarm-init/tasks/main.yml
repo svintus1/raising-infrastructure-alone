@@ -19,5 +19,5 @@
 
 - name: Кеширование ip адреса в фактах
   ansible.builtin.set_fact:
-    runner_ip: "{{ ansible_facts['eth1']['ipv4']['address'] | trim }}"
+    runner_ip: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
     cacheable: true

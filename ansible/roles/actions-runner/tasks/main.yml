@@ -27,7 +27,7 @@
     chdir: "{{ runner_dir }}"
   changed_when: false
 
-- name: Создать systemd-сервис
+- name: Создание systemd-сервис
   ansible.builtin.copy:
     dest: /etc/systemd/system/actions-runner.service
     content: |
