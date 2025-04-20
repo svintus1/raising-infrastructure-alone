@@ -1,0 +1,30 @@
+---
+- name: Добавление ноды в swarm кластер
+  community.docker.docker_swarm:
+    state: join
+    join_token: "{{ join_token }}"
+    remote_addrs: "{{ runner_host_ip }}"
+
+- name: Разрешение использовать HTTP для ip адреса runner хоста
+  become: true
+  block:
+    - name: Проверка наличия файла daemon.json
+      ansible.builtin.file:
+        path: /etc/docker/daemon.json
+        state: touch
+        mode: "0744"
+
+    - name: Добавление конфигураций
+      ansible.builtin.copy:
+        dest: /etc/docker/daemon.json
+        mode: "0744"
+        content: |
+          {
+            "insecure-registries": ["{{ runner_host_ip }}:5000"]
+          }
+
+    - name: Перезапуск сервиса Docker
+      ansible.builtin.service:
+        name: docker
+        state: restarted
+        enabled: true

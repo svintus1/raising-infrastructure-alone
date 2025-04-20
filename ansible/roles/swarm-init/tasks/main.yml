@@ -1,0 +1,23 @@
+---
+- name: Инициализация swarm кластера
+  community.docker.docker_swarm:
+    advertise_addr: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
+    state: present
+  register: join_token
+
+- name: Добавление label registry:true для runner нод
+  community.docker.docker_node:
+    hostname: "{{ ansible_facts['hostname'] }}"
+    labels:
+      registry: "true"
+    labels_state: merge
+
+- name: Запись токенов в факты
+  ansible.builtin.set_fact:
+    token_manager: "{{ join_token.swarm_facts.JoinTokens.Manager }}"
+    cacheable: true
+
+- name: Кеширование ip адреса в фактах
+  ansible.builtin.set_fact:
+    runner_ip: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
+    cacheable: true

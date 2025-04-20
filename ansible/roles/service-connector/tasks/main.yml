@@ -10,7 +10,7 @@
     - name: Добавляем записи с нужными адресами
       ansible.builtin.lineinfile:
         path: /etc/chrony/chrony.conf
-        line: "server {{ ntp_server }} iburst"
+        line: "server {{ service_ip }} iburst"
         state: present
         create: true
         insertafter: EOF

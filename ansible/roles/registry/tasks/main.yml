@@ -1,0 +1,47 @@
+- name: Создать volume для registry
+  community.docker.docker_volume:
+    name: registry_data
+
+- name: Создание сервиса registry
+  community.docker.docker_swarm_service:
+    name: registry
+    image: registry:latest
+    state: present
+    restart_config:
+      condition: any
+    placement:
+      constraints:
+        - node.labels.registry == true
+    mounts:
+      - type: volume
+        source: registry_data
+        target: /var/lib/registry
+    publish:
+      - mode: ingress
+        protocol: tcp
+        published_port: 5000
+        target_port: 5000
+
+- name: Проверка наличия файла daemon.json
+  ansible.builtin.file:
+    path: /etc/docker/daemon.json
+    state: touch
+    mode: "0744"
+  become: true
+
+- name: Разрешение использовать HTTP для ip адреса runner хоста
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    mode: "0744"
+    content: |
+      {
+        "insecure-registries": ["{{ ansible_facts['eth1']['ipv4']['address'] }}:5000"]
+      }
+  become: true
+
+- name: Перезапуск сервиса Docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+    enabled: true
+  become: true

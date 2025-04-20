@@ -24,6 +24,6 @@
     - name: Добавление публичных ключей для подключения по ssh
       ansible.posix.authorized_key:
         user: "{{ item.name }}"
-        key: "{{ item.ssh_pubkey }}"
+        key: "{{ lookup('file', item.ssh_pubkey_path) }}"
         state: present
       loop: "{{ users }}"

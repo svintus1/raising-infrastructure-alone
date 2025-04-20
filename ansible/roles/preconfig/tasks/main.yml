@@ -1,19 +1,10 @@
 - name: Базовая настройка для серверов production и staging
   become: true
   block:
-    - name: Настройка имени хоста
-      ansible.builtin.hostname:
-        name: "{{ hostname }}"
-
     - name: Настройка часового пояса
       community.general.timezone:
         name: "Europe/Moscow"
         hwclock: "UTC"
-
-    - name: Добавление репозитория Universe
-      ansible.builtin.apt_repository:
-        repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
-        state: present
 
     - name: Обновление репозиториев и пакетов
       ansible.builtin.apt:
@@ -34,11 +25,12 @@
           - vim
           - htop
           - chrony
+          - python3-docker
         state: present
 
     - name: Загрузка GPG-ключа Docker
       ansible.builtin.get_url:
-        url: https://download.docker.com/linux/ubuntu/gpg
+        url: https://download.docker.com/linux/debian/gpg
         dest: /etc/apt/keyrings/docker.asc
         mode: "0644"
 
@@ -46,7 +38,7 @@
       ansible.builtin.apt_repository:
         repo: >
           deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc]
-          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+          https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
         filename: docker
         state: present
         update_cache: true
