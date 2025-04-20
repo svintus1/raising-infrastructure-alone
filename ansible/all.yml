@@ -1,18 +1,56 @@
 ---
-- name: Конфигурация серверов
-  hosts: servers
+- name: Начальная конфигурация всех серверов
+  hosts: all
   roles:
     - role: preconfig
       tags: preconfig
 
+- name: Создание пользователей из группы разработчиков в среде dev
+  hosts: cluster_dev
+  roles:
     - role: users-init
       tags: users-init
 
+- name: Создание сервисов на сервисном сервре
+  hosts: service-server
+  roles:
     - role: service-creator
-      tags: service-creator
+      tags: service-init
 
+- name: Подключение остальных серверов к сервисам
+  hosts: clusters
+  roles:
     - role: service-connector
-      tags: service-connector
+      tags: service-init
 
+- name: Инициализация swarm кластера
+  hosts: prod_runner, dev_runner
+  roles:
+    - role: swarm-init
+      tags: swarm-init
+    - role: registry
+      tags: swarm-init
+
+- name: Добавление нод в swarm кластер
+  hosts: prod_managers, dev_managers
+  roles:
+    - role: swarm-join
+      tags: swarm-init
+
+- name: Подключение сервера к GitHub Actions, создание Self-Hosted Runner
+  hosts: dev_runner
+  vars_prompt:
+    - name: runner_token
+      prompt: Введите токен для server-dev
+  roles:
+    - role: actions-runner
+      tags: actions-runner
+
+- name: Подключение сервера к GitHub Actions, создание Self-Hosted Runner
+  hosts: prod_runner
+  vars_prompt:
+    - name: runner_token
+      prompt: Введите токен для server-prod
+  roles:
     - role: actions-runner
       tags: actions-runner

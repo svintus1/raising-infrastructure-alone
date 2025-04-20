@@ -32,3 +32,8 @@
         name: chrony
         enabled: true
         state: restarted
+
+    - name: Сохранение факта о ip адресе сервера
+      ansible.builtin.set_fact:
+        service_ip: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
+        cacheable: true

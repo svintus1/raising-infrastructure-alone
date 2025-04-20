@@ -1,6 +1,1 @@
 .vscode
-ansible/host_vars/
-ansible/inventory/
-vars
-.vagrant
-Vagrantfile
