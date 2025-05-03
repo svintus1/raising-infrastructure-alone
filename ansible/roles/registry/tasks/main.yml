@@ -35,7 +35,7 @@
     mode: "0744"
     content: |
       {
-        "insecure-registries": ["{{ ansible_facts['eth1']['ipv4']['address'] }}:5000"]
+        "insecure-registries": ["{{ label }}.registry.local:5000"]
       }
   become: true
 

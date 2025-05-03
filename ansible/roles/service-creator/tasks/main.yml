@@ -35,5 +35,36 @@
 
     - name: Сохранение факта о ip адресе сервера
       ansible.builtin.set_fact:
-        service_ip: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
+        service_ip: "{{ ansible_facts['eth0']['ipv4']['address'] }}"
         cacheable: true
+
+- name: Создание локального DNS сервера
+  become: true
+  block:
+    - name: Установка необходимых пакетов
+      ansible.builtin.apt:
+        name:
+          - dnsmasq
+        state: present
+        update_cache: true
+
+    - name: Конфигурация DNS сервера
+      ansible.builtin.copy:
+        dest: /etc/dnsmasq.conf
+        content: |
+          interface=eth0
+
+          port=53
+
+          address=/prod.registry.local/{{ hostvars['prod-node-1']['ansible_facts']['runner_ip'] }}
+          address=/dev.registry.local/{{ hostvars['dev-node-1']['ansible_facts']['runner_ip'] }}
+
+          server=8.8.8.8
+          server=1.1.1.1
+        mode: "0744"
+
+    - name: Перезапуск DNS серавера с новыми конфигурациями
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
+        enabled: true

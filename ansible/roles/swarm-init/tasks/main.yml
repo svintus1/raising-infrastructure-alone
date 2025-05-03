@@ -1,7 +1,7 @@
 ---
 - name: Инициализация swarm кластера
   community.docker.docker_swarm:
-    advertise_addr: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
+    advertise_addr: "{{ ansible_facts['eth0']['ipv4']['address'] }}"
     state: present
   register: join_token
 
@@ -19,5 +19,5 @@
 
 - name: Кеширование ip адреса в фактах
   ansible.builtin.set_fact:
-    runner_ip: "{{ ansible_facts['eth1']['ipv4']['address'] }}"
+    runner_ip: "{{ ansible_facts['eth0']['ipv4']['address'] }}"
     cacheable: true

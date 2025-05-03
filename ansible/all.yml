@@ -11,18 +11,6 @@
     - role: users-init
       tags: users-init
 
-- name: Создание сервисов на сервисном сервре
-  hosts: service-server
-  roles:
-    - role: service-creator
-      tags: service-init
-
-- name: Подключение остальных серверов к сервисам
-  hosts: clusters
-  roles:
-    - role: service-connector
-      tags: service-init
-
 - name: Инициализация swarm кластера
   hosts: prod_runner, dev_runner
   roles:
@@ -36,6 +24,18 @@
   roles:
     - role: swarm-join
       tags: swarm-init
+
+- name: Создание сервисов на сервисном сервре
+  hosts: service-server
+  roles:
+    - role: service-creator
+      tags: service-init
+
+- name: Подключение остальных серверов к сервисам
+  hosts: clusters
+  roles:
+    - role: service-connector
+      tags: service-init
 
 - name: Подключение сервера к GitHub Actions, создание Self-Hosted Runner
   hosts: dev_runner
