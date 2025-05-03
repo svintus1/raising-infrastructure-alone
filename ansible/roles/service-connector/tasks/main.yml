@@ -21,3 +21,12 @@
         name: chrony
         enabled: true
         state: restarted
+
+- name: Добавление NTP сервера
+  become: true
+  block:
+    - name: Удаляем все записи с адресами NTP серверов
+      ansible.builtin.copy:
+        dest: /etc/resolv.conf
+        content: nameserver {{ service_ip }}
+        mode: "0744"

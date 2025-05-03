@@ -224,7 +224,7 @@ Vagrant.configure("2") do |config|
             # Настройки VirtualBox
             vm.vm.provider "virtualbox" do |vb|
                 vb.name = "debian-server-prod-#{i}"
-                vb.memory = 1024
+                vb.memory = 512
                 vb.cpus = 1
         end
 
@@ -255,7 +255,7 @@ Vagrant.configure("2") do |config|
             # Настройки VirtualBox
             vm.vm.provider "virtualbox" do |vb|
                 vb.name = "debian-server-dev-#{i}"
-                vb.memory = 1024
+                vb.memory = 512
                 vb.cpus = 1
         end
 
@@ -286,7 +286,7 @@ Vagrant.configure("2") do |config|
             # Настройки VirtualBox
             vm.vm.provider "virtualbox" do |vb|
                 vb.name = "debian-server-service-#{i}"
-                vb.memory = 2048
+                vb.memory = 512
                 vb.cpus = 1
         end
 

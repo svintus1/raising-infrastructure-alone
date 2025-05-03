@@ -20,7 +20,7 @@
         mode: "0744"
         content: |
           {
-            "insecure-registries": ["{{ runner_host_ip }}:5000"]
+            "insecure-registries": ["{{ label }}.registry.local:5000"]
           }
 
     - name: Перезапуск сервиса Docker
