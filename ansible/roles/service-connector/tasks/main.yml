@@ -22,10 +22,10 @@
         enabled: true
         state: restarted
 
-- name: Добавление NTP сервера
+- name: Добавление DNS сервера
   become: true
   block:
-    - name: Удаляем все записи с адресами NTP серверов
+    - name: Добавляем запись о DNS сервере
       ansible.builtin.copy:
         dest: /etc/resolv.conf
         content: nameserver {{ service_ip }}
